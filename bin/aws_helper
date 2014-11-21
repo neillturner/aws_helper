@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require "awshelper/cli"
+
+Awshelper::CLI.start(ARGV)
