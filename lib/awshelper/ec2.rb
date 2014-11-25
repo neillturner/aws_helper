@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require 'json'
 require 'open-uri'
 require 'syslog'
 require 'right_aws'
