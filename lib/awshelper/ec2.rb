@@ -81,20 +81,20 @@ require 'right_aws'
       end
 
       def query_role
-        r = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/",options = {:proxy => proxy}).readlines.first
+        r = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/",options = {:proxy => false}).readlines.first
         r
       end
 
       def query_role_credentials(role = query_role)
         log("Instance has no IAM role.",'err') if role.to_s.empty?
         fail "Instance has no IAM role." if role.to_s.empty?
-        creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}",options = {:proxy => proxy}){|f| JSON.parse(f.string)}
+        creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}",options = {:proxy => false}){|f| JSON.parse(f.string)}
         log("Retrieved instance credentials for IAM role #{role}")
         creds
       end
 
       def query_instance_id
-        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id',options = {:proxy => proxy}){|f| f.gets}
+        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id',options = {:proxy => false}){|f| f.gets}
         log("Cannot find instance id!",'err') unless instance_id
         raise "Cannot find instance id!" unless instance_id
         log("Instance ID is #{instance_id}")
@@ -102,7 +102,7 @@ require 'right_aws'
       end
       
       def query_ami_id
-        ami_id = open('http://169.254.169.254/latest/meta-data/ami-id',options = {:proxy => proxy}){|f| f.gets}
+        ami_id = open('http://169.254.169.254/latest/meta-data/ami-id',options = {:proxy => false}){|f| f.gets}
         log("Cannot find ami id!",'err') unless ami_id
         raise "Cannot find instance id!" unless ami_id
         log("Aim ID is #{ami_id}")
@@ -110,7 +110,7 @@ require 'right_aws'
       end 
       
       def query_local_ipv4
-        local_ipv4 = open('http://169.254.169.254/latest/meta-data/local-ipv4',options = {:proxy => proxy}){|f| f.gets}
+        local_ipv4 = open('http://169.254.169.254/latest/meta-data/local-ipv4',options = {:proxy => false}){|f| f.gets}
         log("Cannot find local_ipv4!",'err') unless local_ipv4
         raise "Cannot find local_ipv4!" unless local_ipv4
         log("local_ipv4 is #{local_ipv4}")
@@ -118,7 +118,7 @@ require 'right_aws'
       end      
 
       def query_instance_availability_zone
-        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = {:proxy => proxy}){|f| f.gets}
+        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = {:proxy => false}){|f| f.gets}
         log("Cannot find availability zone!",'err') unless availability_zone
         raise "Cannot find availability zone!" unless availability_zone
         log("Instance's availability zone is #{availability_zone}")

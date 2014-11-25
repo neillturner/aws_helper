@@ -19,24 +19,36 @@ Or install it yourself as:
 
     $ gem install aws_helper
 
-## Usage
+## Minimal Usage
 
-Snapshot EBS attached to device /dev/sdf
+Assuming server start with an IAM role that have read access to AWS can create and delete snapshots: 
+
+Snapshot EBS root device at /dev/sda1
+
+    aws_helper snap /dev/sda1 --description zzzzzzzzz
+
+Prune so only keep 7 snapshots: 
+
+    aws_helper snap_prune /dev/sda1 --snapshots_to_keep=7
+
+## Complex Usage
+
+If your server does not have a role then you need to code the AWS keys which is not best practice:
+
+Snapshot EBS attached to device /dev/sdf volume vol-123456 access AWS through an http proxy: 
 
     export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
     export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
     export HTTP_PROXY=http://myproxy:port
-    aws_helper snap /dev/sdf --description zzzzzzzzz
+    aws_helper snap /dev/sdf vol-123456 --description zzzzzzzzz
 
 Prune so only keep 7 snapshots: 
 
     export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
     export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
-    aws_helper snap_prune /dev/sdf --snapshots_to_keep=7
-    
-NOTE: Best Practice is for your server to have an IAM role then you don't
-need to specify AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
-    
-Other functions to follow    
+    export HTTP_PROXY=http://myproxy:port
+    aws_helper snap_prune /dev/sdf vol-123456 --snapshots_to_keep=7
+ 
+Other functions to follow     
 
 
