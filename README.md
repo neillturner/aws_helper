@@ -31,6 +31,10 @@ Prune so only keep 7 snapshots:
 
     aws_helper snap_prune /dev/sda1 --snapshots_to_keep=7
 
+Email me a list of the latest 20 snapshots:
+
+    aws_helper snap_email me@company.com ebs.backups@company.com mysmtpemailserver.com
+
 ## Complex Usage
 
 If your server does not have a role then you need to code the AWS keys which is not best practice:
@@ -42,12 +46,19 @@ Snapshot EBS attached to device /dev/sdf volume vol-123456 access AWS through an
     export HTTP_PROXY=http://myproxy:port
     aws_helper snap /dev/sdf vol-123456 --description zzzzzzzzz
 
-Prune so only keep 7 snapshots: 
+Prune so only keep 20 snapshots: 
 
     export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
     export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
     export HTTP_PROXY=http://myproxy:port
-    aws_helper snap_prune /dev/sdf vol-123456 --snapshots_to_keep=7
+    aws_helper snap_prune /dev/sdf vol-123456 --snapshots_to_keep=20
+
+Email me a list of the latest 30 snapshots with a subject title on email:
+
+    export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
+    export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
+    export HTTP_PROXY=http://myproxy:port
+    aws_helper snap_email me@company.com ebs.backups@company.com mysmtpemailserver.com 'My EBS Backups' --rows=30
  
 Other functions to follow     
 
