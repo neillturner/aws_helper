@@ -132,26 +132,30 @@ end
 
 desc "snap_email TO FROM EMAIL_SERVER", "Email Snapshot List."
 option :rows, :type => :numeric, :required => false
+option :owner, :type => :numeric, :required => false
 
 long_desc <<-LONGDESC
-  'snap_email TO FROM EMAIL_SERVER ['EBS Backups'] --rows=<numeric>'' 
+  'snap_email TO FROM EMAIL_SERVER ['EBS Backups'] --rows=<numeric> --owner=<numeric>' 
   \x5 Emails the last 20 snapshots from specific email address via the email_server.
    \x5 All commands rely on environment variables or the server having an IAM role
     \x5    export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
     \x5    export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
   \x5 For example 
-    \x5    aws_helper snap_email me@mycompany.com ebs.backups@mycompany.com emailserver.com 'My EBS Backups' --rows=20
-  \x5 will email the list of the latest 20 snapshots to email address me@mycompany.com via email server emailserver.com  
+    \x5    aws_helper snap_email me@mycompany.com ebs.backups@mycompany.com emailserver.com 'My EBS Backups' --rows=20 -owner=999887777
+  \x5 will email the list of the latest 20 snapshots to email address me@mycompany.com via email server emailserver.com
+  \x5 that belong to aws owner 999887777 
 LONGDESC
 
 def snap_email(to, from, email_server, subject='EBS Backups')
   rows = 20
   rows = options[:rows] if options[:rows]
+  owner = {}
+  owner = {:owner, options[:owner]} if options[:owner]
   message = ""
   log("Report on snapshots")
   # ({ Name="start-time", Values="today in YYYY-MM-DD"})
   i = rows
-  ec2.describe_snapshots.sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }.each do |snapshot|
+  ec2.describe_snapshots(owner).sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }.each do |snapshot|
     if i >0
       message = message+"#{snapshot[:aws_id]} #{snapshot[:aws_volume_id]} #{snapshot[:aws_started_at]} #{snapshot[:aws_description]} #{snapshot[:aws_status]}\n"
       i = i-1
