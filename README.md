@@ -35,6 +35,12 @@ Email me a list of the latest 20 snapshots:
 
     aws_helper snap_email me@company.com ebs.backups@company.com mysmtpemailserver.com
 
+Cleanup ebs disks - Delete old server root disks:
+
+    aws_helper ebs_cleanup
+
+    Disks that are 8GB in size, not attached to a server, not tagged in any way and from a snapshot will be deleted.     
+
 ## Complex Usage
 
 If your server does not have a role then you need to code the AWS keys which is not best practice:

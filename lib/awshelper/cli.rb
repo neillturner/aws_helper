@@ -3,6 +3,7 @@ require 'awshelper'
 require 'awshelper/ec2'
 require 'syslog'
 require 'net/smtp'
+require 'json'
 
 module Awshelper
   class CLI < Thor
@@ -170,6 +171,30 @@ def snap_email(to, from, email_server, subject='EBS Backups')
   send_email(to,opts)
 end
 
+desc "ebs_cleanup", "Cleanup ebs disks - Delete old server root disks."
+
+long_desc <<-LONGDESC
+  'ebs_cleanup'
+  \x5 Cleanup ebs disks - Delete old server root disks.
+  \x5 Disks that are 8GB in size, not attached to a server, not tagged in any way and from a snapshot.   
+   \x5 All commands rely on environment variables or the server having an IAM role.
+    \x5    export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
+    \x5    export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
+  \x5 For example
+    \x5    ebs_cleanup
+LONGDESC
+
+def ebs_cleanup()
+ response = ec2.describe_volumes()
+ response.each do |r|
+   if r[:aws_size] == 8 and  r[:aws_status] == 'available' and r[:tags] == {} and  r[:snapshot_id] != nil and  r[:snapshot_id][0,5] == 'snap-' then
+    log("Deleting unused volume #{r[:aws_id]} from snapshot #{r[:snapshot_id]}")
+    ec2.delete_volume(r[:aws_id])
+   end
+ end
+end
+
+
 private
 
 def log(message,type="info")
@@ -193,6 +218,27 @@ def determine_volume(device, volume_id)
 
   vol
 end
+
+
+def get_all_instances(filter={})
+   data = []
+   response = ec2.describe_instances(filter)
+   if response.status == 200
+     data_s = response.body['reservationSet']
+     data_s.each do |rs|
+       gs=rs['groupSet']
+       rs['instancesSet'].each do |r|
+         #r[:aws_instance_id] = r['instanceId']
+         #r[:public_ip] = r['ipAddress']
+         #r[:aws_state] = r['instanceState']['name']
+         #r['groupSet']=rs['groupSet']
+         data.push(r)
+       end
+     end
+   end
+   data
+ end  
+
 
 # Retrieves information for a volume
 def volume_by_id(volume_id)
