@@ -185,8 +185,7 @@ long_desc <<-LONGDESC
 LONGDESC
 
 def ebs_cleanup()
- response = ec2.describe_volumes()
- response.each do |r|
+ ec2.describe_volumes(:filters => { 'status' => 'available', 'size' => '8' }).each do |r|
    if r[:aws_size] == 8 and  r[:aws_status] == 'available' and r[:tags] == {} and  r[:snapshot_id] != nil and  r[:snapshot_id][0,5] == 'snap-' then
     log("Deleting unused volume #{r[:aws_id]} from snapshot #{r[:snapshot_id]}")
     ec2.delete_volume(r[:aws_id])
