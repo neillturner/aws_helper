@@ -10,9 +10,9 @@ module Awshelper
     include Thor::Actions
 
     include Awshelper::Ec2
-    
+
 #def ebs_create(volume_id, snapshot_id, most_recent_snapshot)
-#  #TO DO 
+#  #TO DO
 #  raise "Cannot create a volume with a specific id (EC2 chooses volume ids)" if volume_id
 #  if snapshot_id =~ /vol/
 #    new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
@@ -77,39 +77,39 @@ module Awshelper
 #end
 
 desc "snap DEVICE [VOLUME_ID]", "Take a snapshot of a EBS Disk."
-option :description 
+option :description
 
 long_desc <<-LONGDESC
-  'snap DEVICE [VOLUME_ID] --description xxxxxx' 
+  'snap DEVICE [VOLUME_ID] --description xxxxxx'
   \x5 Take a snapshot of a EBS Disk by specifying device and/or volume_id.
-  \x5 All commands rely on environment variables or the server having an IAM role 
+  \x5 All commands rely on environment variables or the server having an IAM role
     \x5   export AWS_ACCESS_KEY_ID ='xxxxxxxxxx'
     \x5   export AWS_SECRET_ACCESS_KEY ='yyyyyy'
-  \x5 For example 
+  \x5 For example
     \x5    aws_helper snap /dev/sdf
-  \x5 will snap shot the EBS disk attach to device /dev/xvdj  
+  \x5 will snap shot the EBS disk attach to device /dev/xvdj
 LONGDESC
 
 def snap(device, volume_id=nil)
   vol = determine_volume(device, volume_id)
-  snap_description = options[:description] if options[:description] 
+  snap_description = options[:description] if options[:description]
   snap_description = "Created by aws_helper(#{instance_id}/#{local_ipv4}) for #{ami_id} from #{vol[:aws_id]}" if !options[:description]
   snapshot = ec2.create_snapshot(vol[:aws_id],snap_description)
   log("Created snapshot of #{vol[:aws_id]} as #{snapshot[:aws_id]}")
 end
 
 desc "snap_prune DEVICE [VOLUME_ID]", "Prune the number of snapshots."
-option :snapshots_to_keep, :type => :numeric, :required => true  
+option :snapshots_to_keep, :type => :numeric, :required => true
 
 long_desc <<-LONGDESC
-  'snap_prune DEVICE [VOLUME_ID] --snapshots_to_keep=<numeric>' 
+  'snap_prune DEVICE [VOLUME_ID] --snapshots_to_keep=<numeric>'
   \x5 Prune the number of snapshots of a EBS Disk by specifying device and/or volume_id and the no to keep.
-   \x5 All commands rely on environment variables or the server having an IAM role 
+   \x5 All commands rely on environment variables or the server having an IAM role
     \x5    export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
     \x5    export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
-  \x5 For example 
+  \x5 For example
     \x5    aws_helper snap_prune /dev/sdf --snapshots_to_keep=7
-  \x5 will keep the last 7 snapshots of the EBS disk attach to device /dev/xvdj  
+  \x5 will keep the last 7 snapshots of the EBS disk attach to device /dev/xvdj
 LONGDESC
 
 def snap_prune(device, volume_id=nil)
@@ -136,22 +136,22 @@ option :rows, :type => :numeric, :required => false
 option :owner, :type => :numeric, :required => false
 
 long_desc <<-LONGDESC
-  'snap_email TO FROM EMAIL_SERVER ['EBS Backups'] --rows=<numeric> --owner=<numeric>' 
+  'snap_email TO FROM EMAIL_SERVER ['EBS Backups'] --rows=<numeric> --owner=<numeric>'
   \x5 Emails the last 20 snapshots from specific email address via the email_server.
    \x5 All commands rely on environment variables or the server having an IAM role
     \x5    export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
     \x5    export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
-  \x5 For example 
+  \x5 For example
     \x5    aws_helper snap_email me@mycompany.com ebs.backups@mycompany.com emailserver.com 'My EBS Backups' --rows=20 -owner=999887777
   \x5 will email the list of the latest 20 snapshots to email address me@mycompany.com via email server emailserver.com
-  \x5 that belong to aws owner 999887777 
+  \x5 that belong to aws owner 999887777
 LONGDESC
 
 def snap_email(to, from, email_server, subject='EBS Backups')
   rows = 20
   rows = options[:rows] if options[:rows]
   owner = {}
-  owner = {:owner, options[:owner]} if options[:owner]
+  owner = {:aws_owner => options[:owner]} if options[:owner]
   message = ""
   log("Report on snapshots")
   # ({ Name="start-time", Values="today in YYYY-MM-DD"})
@@ -176,7 +176,7 @@ desc "ebs_cleanup", "Cleanup ebs disks - Delete old server root disks."
 long_desc <<-LONGDESC
   'ebs_cleanup'
   \x5 Cleanup ebs disks - Delete old server root disks.
-  \x5 Disks that are 8GB in size, not attached to a server, not tagged in any way and from a snapshot.   
+  \x5 Disks that are 8GB in size, not attached to a server, not tagged in any way and from a snapshot.
    \x5 All commands rely on environment variables or the server having an IAM role.
     \x5    export AWS_ACCESS_KEY_ID ='xxxxxxxxxxxx'
     \x5    export AWS_SECRET_ACCESS_KEY ='yyyyyyyy'
@@ -236,7 +236,7 @@ def get_all_instances(filter={})
      end
    end
    data
- end  
+ end
 
 
 # Retrieves information for a volume
@@ -259,10 +259,10 @@ end
 #  (new_resource.snapshot_id.nil? || new_resource.snapshot_id == volume[:snapshot_id])
 #end
 
-# TODO: support tags in deswcription 
+# TODO: support tags in deswcription
 #def tag_value(instance,tag_key)
 #       options = ec2.describe_tags({:filters => {:resource_id   => instance }} )
-# end     
+# end
 
 # Creates a volume according to specifications and blocks until done (or times out)
 def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops)
@@ -394,7 +394,7 @@ Subject: #{opts[:subject]}
 
 #{opts[:body]}
 END_OF_MESSAGE
-   puts "Sending to #{to} from #{opts[:from]} email server #{opts[:server]}" 
+   puts "Sending to #{to} from #{opts[:from]} email server #{opts[:server]}"
   Net::SMTP.start(opts[:server]) do |smtp|
     smtp.send_message msg, opts[:from], to
   end
