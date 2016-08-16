@@ -158,7 +158,7 @@ def snap_email(to, from, email_server, subject='EBS Backups')
   i = rows
   ec2.describe_snapshots().sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }.each do |snapshot|
     if i >0
-      if !options[:owner] or snapshot[:owner_id] == options[:owner]
+      if options[:owner].to_s == '' || snapshot[:owner_id].to_s == options[:owner].to_s
         message = message+"#{snapshot[:aws_id]} #{snapshot[:aws_volume_id]} #{snapshot[:aws_started_at]} #{snapshot[:aws_description]} #{snapshot[:aws_status]}\n"
         i = i-1
       end
