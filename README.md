@@ -1,5 +1,9 @@
 # aws_helper
 
+[![Gem Version](https://badge.fury.io/rb/aws_helper.svg)](http://badge.fury.io/rb/aws_helper)
+[![Gem Downloads](http://ruby-gem-downloads-badge.herokuapp.com/aws_helper?type=total&color=brightgreen)](https://rubygems.org/gems/aws_helper)
+[![Build Status](https://travis-ci.org/neillturner/aws_helper.png)](https://travis-ci.org/neillturner/aws_helper)
+
 Aws Helper for an instance
 
 Allows functions on EBS volumes, snapshots, IP addresses and more 
