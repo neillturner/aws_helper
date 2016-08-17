@@ -150,18 +150,16 @@ LONGDESC
 def snap_email(to, from, email_server, subject='EBS Backups')
   rows = 20
   rows = options[:rows] if options[:rows]
-  #owner = {}
-  #owner = {:aws_owner => options[:owner]} if options[:owner]
+  owner = {}
+  owner = {:owner => options[:owner]} if options[:owner]
   message = ""
   log("Report on snapshots")
   # ({ Name="start-time", Values="today in YYYY-MM-DD"})
   i = rows
-  ec2.describe_snapshots().sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }.each do |snapshot|
+  ec2.describe_snapshots(owner).sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }.each do |snapshot|
     if i >0
-      if options[:owner].to_s == '' || snapshot[:owner_id].to_s == options[:owner].to_s
-        message = message+"#{snapshot[:aws_id]} #{snapshot[:aws_volume_id]} #{snapshot[:aws_started_at]} #{snapshot[:aws_description]} #{snapshot[:aws_status]}\n"
-        i = i-1
-      end
+      message = message+"#{snapshot[:aws_id]} #{snapshot[:aws_volume_id]} #{snapshot[:aws_started_at]} #{snapshot[:aws_description]} #{snapshot[:aws_status]}\n"
+      i = i-1
     end
   end
   opts = {}
