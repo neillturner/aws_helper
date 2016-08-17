@@ -133,7 +133,7 @@ end
 
 desc "snap_email TO FROM EMAIL_SERVER", "Email Snapshot List."
 option :rows, :type => :numeric, :required => false
-option :owner, :type => :numeric, :required => false
+option :owner, :type => :string, :required => false
 
 long_desc <<-LONGDESC
   'snap_email TO FROM EMAIL_SERVER ['EBS Backups'] --rows=<numeric> --owner=<numeric>'
